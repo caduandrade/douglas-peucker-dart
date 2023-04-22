@@ -1,11 +1,9 @@
 import 'dart:math';
 
-class Point {
-  final double x;
-  final double y;
+import 'dp_point.dart';
 
-  Point(this.x, this.y);
-}
+
+
 
 class DouglasPeucker {
   /// polyline simplification  it uses a combination of Douglas-Peucker and Radial Distance algorithms.
@@ -13,31 +11,32 @@ class DouglasPeucker {
   /// [points] List<Point>
   /// [tolerance] double tolerance
   /// [highestQuality] bool
-  static List<Point> simplify(List<Point> points,
-      {double tolerance = 1, bool highestQuality = false}) {
-    if (points.length < 2) {
-      return points;
-    }
+  static List<T> simplify <T extends IDpPoint>(
+    List<T> points,
+    { double tolerance = 1, bool highestQuality = false }
+  ) {
+    if (points.length < 2) return points;
 
     final double sqTolerance = pow(tolerance, 2).toDouble();
 
-    if (!highestQuality) {
-      points = simplifyRadialDistance(points, sqTolerance);
-    }
-
+    if (!highestQuality) points = simplifyRadialDistance(points, sqTolerance);
+    
     points = simplifyDouglasPeucker(points, sqTolerance);
 
     return points;
   }
 
-  static List<Point> simplifyRadialDistance(
-      List<Point> points, double sqTolerance) {
-    var prevPoint = points[0];
-    List<Point> newPoints = [];
-    newPoints.add(prevPoint);
-    Point? point;
 
-    for (Point iPoint in points) {
+  static List<T> simplifyRadialDistance<T extends IDpPoint>(
+    List<T> points,
+    double sqTolerance
+  ) {
+    var prevPoint = points[0];
+    List<T> newPoints = [];
+    newPoints.add(prevPoint);
+    T? point;
+
+    for (T iPoint in points) {
       point = iPoint;
       if (getSquareDistance(point, prevPoint) > sqTolerance) {
         newPoints.add(point);
@@ -52,13 +51,15 @@ class DouglasPeucker {
     return newPoints;
   }
 
-  static getSquareDistance(Point p1, Point p2) {
+
+  static getSquareDistance(IDpPoint p1, IDpPoint p2) {
     final dx = p1.x - p2.x;
     final dy = p1.y - p2.y;
     return pow(dx, 2) + pow(dy, 2);
   }
 
-  static getSquareSegmentDistance(Point p, Point p1, Point p2) {
+
+  static getSquareSegmentDistance(IDpPoint p, IDpPoint p1, IDpPoint p2) {
     var x = p1.x;
     var y = p1.y;
     var dx = p2.x - x;
@@ -78,15 +79,18 @@ class DouglasPeucker {
     return dx * dx + dy * dy;
   }
 
-  static List<Point> simplifyDouglasPeucker(
-      List<Point> points, double sqTolerance) {
+
+  static List<T> simplifyDouglasPeucker<T extends IDpPoint>(
+    List<T> points, 
+    double sqTolerance
+  ) {
     final len = points.length;
     var markers = List<int?>.filled(len, null, growable: true);
     var first = 0;
     var last = len - 1;
     List<int> firstStack = [];
     List<int> lastStack = [];
-    List<Point> newPoints = [];
+    List<T> newPoints = [];
 
     markers[first] = markers[last] = 1;
     var index = 0;
